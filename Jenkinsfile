@@ -42,17 +42,27 @@ pipeline {
             }
         }
 
-        stage('Deploy (example)') {
+       stage('Deploy Backend to Tomcat') {
     steps {
         bat '''
-        REM Copy backend JAR to Linux server
-        scp SampleBackend\\bookslibrary\\target\\*.jar user@server:/opt/apps/
+        REM Delete old WAR file if it exists
+        if exist "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\bookslibrary.war" (
+            del /Q "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\bookslibrary.war"
+        )
 
-        REM Run backend on Linux server
-        ssh user@server "nohup java -jar /opt/apps/your-app.jar > /opt/apps/app.log 2>&1 &"
+        REM Delete exploded folder if it exists
+        if exist "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\bookslibrary" (
+            rmdir /S /Q "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\bookslibrary"
+        )
+
+        REM Copy new WAR file to Tomcat webapps
+        copy "SampleBackend\\bookslibrary\\target\\*.war" "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\"
         '''
     }
 }
+
+}
+
 
     }
 
