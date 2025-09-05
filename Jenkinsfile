@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     tools {
-        maven 'MAVEN'   // Make sure this matches your Jenkins Global Tool Config
-        jdk 'JAVA'      // Make sure this matches your Jenkins JDK config
-        // NodeJS line removed, assuming node & npm are in PATH
+        maven 'MAVEN'   // Must match Jenkins Global Tool Config
+        jdk 'JAVA'      // Must match Jenkins JDK config
+        // NodeJS removed from tools; will use Windows PATH
     }
 
     stages {
@@ -16,7 +16,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                dir('SampleBackend') { 
+                dir('SampleBackend/bookslibrary') { 
                     // Windows: build backend
                     bat 'mvn -B clean package -DskipTests'
                 }
@@ -36,7 +36,7 @@ pipeline {
         stage('Archive Artifacts') {
             steps {
                 // Archive backend JAR
-                archiveArtifacts artifacts: 'SampleBackend/target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'SampleBackend/bookslibrary/target/*.jar', fingerprint: true
                 // Archive frontend build folder
                 archiveArtifacts artifacts: 'SampleFrontend/BooksLibrary/build/**', allowEmptyArchive: true
             }
@@ -48,7 +48,7 @@ pipeline {
                 // Make sure pscp.exe and plink.exe are in PATH
                 bat '''
                 REM Copy backend JAR to Linux server
-                pscp SampleBackend\\target\\*.jar user@server:/opt/apps/
+                pscp SampleBackend\\bookslibrary\\target\\*.jar user@server:/opt/apps/
 
                 REM Run backend on Linux server
                 plink user@server "nohup java -jar /opt/apps/your-app.jar > /opt/apps/app.log 2>&1 &"
