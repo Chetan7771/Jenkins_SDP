@@ -43,18 +43,17 @@ pipeline {
         }
 
         stage('Deploy (example)') {
-            steps {
-                // Example: Windows → Linux deploy using PuTTY tools
-                // Make sure pscp.exe and plink.exe are in PATH
-                bat '''
-                REM Copy backend JAR to Linux server
-                pscp SampleBackend\\bookslibrary\\target\\*.jar user@server:/opt/apps/
+    steps {
+        bat '''
+        REM Copy backend JAR to Linux server
+        scp SampleBackend\\bookslibrary\\target\\*.jar user@server:/opt/apps/
 
-                REM Run backend on Linux server
-                plink user@server "nohup java -jar /opt/apps/your-app.jar > /opt/apps/app.log 2>&1 &"
-                '''
-            }
-        }
+        REM Run backend on Linux server
+        ssh user@server "nohup java -jar /opt/apps/your-app.jar > /opt/apps/app.log 2>&1 &"
+        '''
+    }
+}
+
     }
 
     post {
