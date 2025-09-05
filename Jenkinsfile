@@ -1,63 +1,64 @@
 pipeline {
-    agent any
+  agent any
 
-    stages {
+  tools {
+    maven 'Maven3'   // name from Jenkins Global Tool Config
+    nodejs 'Node16'  // name from Jenkins NodeJS plugin config
+    jdk 'JDK17'      // name from Jenkins JDK config
+  }
 
-        // ===== FRONTEND BUILD =====
-        stage('Build Frontend') {
-            steps {
-                dir('SampleFrontend') {
-                    bat 'npm install'
-                    bat 'npm run build'
-                }
-            }
-        }
-
-        // ===== FRONTEND DEPLOY =====
-        stage('Deploy Frontend to Tomcat') {
-            steps {
-                bat '''
-                if exist "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\reactstudentapi" (
-                    rmdir /S /Q "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\reactstudentapi"
-                )
-                mkdir "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\reactstudentapi"
-                xcopy /E /I /Y SampleFrontend\\Bookslibrary\\build\\* "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\reactstudentapi"
-                '''
-            }
-        }
-
-        // ===== BACKEND BUILD =====
-        stage('Build Backend') {
-            steps {
-                dir('SampleBackend') {
-                    bat 'mvn clean package'
-                }
-            }
-        }
-
-        // ===== BACKEND DEPLOY =====
-        stage('Deploy Backend to Tomcat') {
-            steps {
-                bat '''
-                if exist "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\springbootstudentapi.war" (
-                    del /Q "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\springbootstudentapi.war"
-                )
-                if exist "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\springbootstudentapi" (
-                    rmdir /S /Q "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\springbootstudentapi"
-                )
-                copy "SampleBackend\\bookslibrary\\target\\*.war" "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\webapps\\"
-                '''
-            }
-        }
-
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    post {
-        success {
-            echo '✅ Deployment Successful!'
+    stage('Build Backend') {
+      steps {
+        dir('SampleBackend') {
+          // Linux:
+          sh 'mvn -B clean package -DskipTests'
+          // Windows (use on Windows agent):
+          // bat 'mvn -B clean package -DskipTests'
         }
-        failure {
-            echo '❌ Pipeline Failed.'
-        }
+      }
     }
+
+    stage('Build Frontend') {
+      steps {
+        dir('SampleFrontend') {
+          // Linux:
+          sh 'npm ci'
+          sh 'npm run build'
+          // Windows:
+          // bat 'npm ci'
+          // bat 'npm run build'
+        }
+      }
+    }
+
+    stage('Archive Artifacts') {
+      steps {
+        archiveArtifacts artifacts: 'SampleBackend/target/*.jar', fingerprint: true
+        archiveArtifacts artifacts: 'SampleFrontend/build/**', allowEmptyArchive: true
+      }
+    }
+
+    stage('Deploy (example)') {
+      steps {
+        // Example: scp files to remote server — configure credentials in Jenkins
+        // adjust to your server/paths
+        sh '''
+          scp SampleBackend/target/*.jar user@server:/opt/apps/
+          ssh user@server "nohup java -jar /opt/apps/your-app.jar > /opt/apps/app.log 2>&1 &"
+        '''
+      }
+    }
+  }
+
+  post {
+    success { echo "✅ Pipeline finished" }
+    failure { echo "❌ Pipeline failed" }
+  }
 }
