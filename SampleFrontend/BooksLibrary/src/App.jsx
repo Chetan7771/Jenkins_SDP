@@ -3,7 +3,6 @@ import axios from "axios";
 import "./App.css";
 import config from "./config";
 
-
 const API_BASE = config.url;
 
 function App() {
@@ -11,18 +10,31 @@ function App() {
   const [title, setTitle] = useState("");
   const [director, setDirector] = useState("");
   const [year, setYear] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
 
   const fetchMovies = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(API_BASE);
       setMovies(res.data);
     } catch (err) {
       console.error(err);
       alert("Failed to fetch movies: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
   const addMovie = async () => {
+    if (!title || !director || !year) {
+      alert("Please fill in all fields");
+      return;
+    }
+
     try {
       await axios.post(`${API_BASE}/add`, { title, director, year });
       setTitle("");
@@ -36,18 +48,15 @@ function App() {
   };
 
   const deleteMovie = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this movie?")) return;
     try {
       await axios.delete(`${API_BASE}/delete/${id}`);
-      fetchMovies(); 
+      fetchMovies();
     } catch (err) {
       console.error(err);
       alert("Failed to delete movie: " + (err.response?.data?.message || err.message));
     }
   };
-
-  useEffect(() => {
-    fetchMovies();
-  }, []);
 
   return (
     <div className="container">
@@ -75,29 +84,35 @@ function App() {
           value={year}
           onChange={(e) => setYear(e.target.value)}
         />
-        <button onClick={addMovie}>➕ Add Movie</button>
+        <button onClick={addMovie} disabled={loading}>
+          {loading ? "Adding..." : "➕ Add Movie"}
+        </button>
       </div>
 
       <h2>📽️ All Movies</h2>
-      <div className="movie-list">
-        {movies.length === 0 ? (
-          <p className="empty">No movies found</p>
-        ) : (
-          movies.map((movie) => (
-            <div key={movie.id} className="movie-card">
-              <h3>{movie.title}</h3>
-              <p>🎭 {movie.director}</p>
-              <p>📅 {movie.year}</p>
-              <button
-                className="delete-btn"
-                onClick={() => deleteMovie(movie.id)}
-              >
-                🗑️ Delete
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      {loading ? (
+        <p>Loading movies...</p>
+      ) : (
+        <div className="movie-list">
+          {movies.length === 0 ? (
+            <p className="empty">No movies found</p>
+          ) : (
+            movies.map((movie) => (
+              <div key={movie.id || movie._id} className="movie-card">
+                <h3>{movie.title}</h3>
+                <p>🎭 {movie.director}</p>
+                <p>📅 {movie.year}</p>
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteMovie(movie.id || movie._id)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
