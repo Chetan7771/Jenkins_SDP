@@ -1,4 +1,4 @@
-package com.example.movieslibrary.controller;
+package com.example.movieslibrary.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
