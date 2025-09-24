@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import config from "./config";
 
-const API_BASE = "http://localhost:8080/api/movies";
+
+const API_BASE = config.url;
 
 function App() {
   const [movies, setMovies] = useState([]);

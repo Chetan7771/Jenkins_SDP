@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/movies")
-@CrossOrigin(origins = "*") // allow Vite and CRA
+// allow Vite and CRA
 public class MovieController {
 
     @Autowired
