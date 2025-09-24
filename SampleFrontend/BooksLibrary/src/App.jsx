@@ -1,99 +1,99 @@
-// App.jsx
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import "./App.css";   // external CSS
-import config from "./config";  // ✅ Import config file
+import "./App.css";
 
-const API_BASE = config.url;   // ✅ Use from config.js
+const API_BASE = "http://localhost:8080/api/movies";
 
 function App() {
-  const [books, setBooks] = useState([]);
-  const [name, setName] = useState("");
-  const [author, setAuthor] = useState("");
-  const [isbn, setIsbn] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [title, setTitle] = useState("");
+  const [director, setDirector] = useState("");
+  const [year, setYear] = useState("");
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
+  const fetchMovies = async () => {
     try {
       const res = await axios.get(API_BASE);
-      setBooks(res.data);
+      setMovies(res.data);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch books: " + (err.response?.data?.message || err.message));
+      alert("Failed to fetch movies: " + (err.response?.data?.message || err.message));
     }
   };
 
-  const addBook = async () => {
+  const addMovie = async () => {
     try {
-      await axios.post(`${API_BASE}/add`, { name, author, isbn });
-      setName(""); setAuthor(""); setIsbn("");
-      fetchBooks();
-      alert("Book added");
+      await axios.post(`${API_BASE}/add`, { title, director, year });
+      setTitle("");
+      setDirector("");
+      setYear("");
+      fetchMovies();
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.message || err.response?.data || err.message;
-      alert("Add failed: " + msg);
+      alert("Failed to add movie: " + (err.response?.data?.message || err.message));
     }
   };
 
-  const deleteBook = async (isbnToDelete) => {
-    const ok = window.confirm(`Delete book with ISBN: ${isbnToDelete}?`);
-    if (!ok) return;
-
+  const deleteMovie = async (id) => {
     try {
-      await axios.delete(`${API_BASE}/delete/${encodeURIComponent(isbnToDelete)}`);
-      fetchBooks();
-      alert("Book deleted");
+      await axios.delete(`${API_BASE}/delete/${id}`);
+      fetchMovies(); 
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.message || err.response?.data || err.message;
-      alert("Delete failed: " + msg);
+      alert("Failed to delete movie: " + (err.response?.data?.message || err.message));
     }
   };
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
 
   return (
     <div className="container">
-      <h1>📚 Books Library</h1>
+      <header>
+        <h1>🎥 Movies Library</h1>
+        <p>Keep track of your favorite movies</p>
+      </header>
 
-      <div className="form">
-        <input placeholder="Title" value={name} onChange={e => setName(e.target.value)} />
-        <input placeholder="Author" value={author} onChange={e => setAuthor(e.target.value)} />
-        <input placeholder="ISBN" value={isbn} onChange={e => setIsbn(e.target.value)} />
-        <button onClick={addBook}>Add Book</button>
+      <div className="form-card">
+        <input
+          type="text"
+          placeholder="🎬 Movie Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="🎭 Director"
+          value={director}
+          onChange={(e) => setDirector(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="📅 Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+        />
+        <button onClick={addMovie}>➕ Add Movie</button>
       </div>
 
-      <div>
-        <h2>All Books</h2>
-        {books.length === 0 ? (
-          <div className="no-books">No books found</div>
+      <h2>📽️ All Movies</h2>
+      <div className="movie-list">
+        {movies.length === 0 ? (
+          <p className="empty">No movies found</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>ISBN</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map(b => (
-                <tr key={b.id}>
-                  <td>{b.name}</td>
-                  <td>{b.author}</td>
-                  <td>{b.isbn}</td>
-                  <td>
-                    <button className="delete-btn" onClick={() => deleteBook(b.isbn)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          movies.map((movie) => (
+            <div key={movie.id} className="movie-card">
+              <h3>{movie.title}</h3>
+              <p>🎭 {movie.director}</p>
+              <p>📅 {movie.year}</p>
+              <button
+                className="delete-btn"
+                onClick={() => deleteMovie(movie.id)}
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          ))
         )}
       </div>
     </div>

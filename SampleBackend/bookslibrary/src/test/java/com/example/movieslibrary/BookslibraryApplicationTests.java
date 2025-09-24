@@ -1,4 +1,4 @@
-package com.example.bookslibrary;
+package com.example.movieslibrary;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
