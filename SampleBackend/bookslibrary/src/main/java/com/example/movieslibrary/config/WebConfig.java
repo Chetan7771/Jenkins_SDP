@@ -1,5 +1,4 @@
 package com.example.movieslibrary.controller;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -13,11 +12,8 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:2030","http://localhost:5173") // React port
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true)
-                        .maxAge(3600);
+                        .allowedOrigins("http://localhost:2030", "http://localhost:5173") // add your React port
+                        .allowedMethods("GET", "POST", "PUT", "DELETE");
             }
         };
     }
