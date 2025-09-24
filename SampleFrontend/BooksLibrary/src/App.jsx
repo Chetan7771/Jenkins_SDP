@@ -14,7 +14,7 @@ function App() {
 
   const fetchMovies = async () => {
     try {
-      const res = await axios.get(API_BASE);
+      const res = await axios.get(API_BASE, { withCredentials: false });
       setMovies(res.data);
     } catch (err) {
       console.error(err);
