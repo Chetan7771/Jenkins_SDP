@@ -29,9 +29,15 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
-    public void deleteById(Long id) {
-        movieRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        if (movieRepository.existsById(id)) {
+            movieRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
+
 
     public List<Movie> getAllMovies() {
         return movieRepository.findAll();

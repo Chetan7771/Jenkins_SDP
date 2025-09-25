@@ -24,9 +24,15 @@ public class MovieController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
-        movieService.deleteById(id);
-        return ResponseEntity.ok("Movie with ID " + id + " deleted successfully");
+        boolean deleted = movieService.deleteById(id);
+        if (deleted) {
+            return ResponseEntity.ok("Movie with ID " + id + " deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Movie with ID " + id + " not found");
+        }
     }
+
 
     @GetMapping
     public List<Movie> getAllMovies() {

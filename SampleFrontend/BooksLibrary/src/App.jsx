@@ -48,20 +48,19 @@ function App() {
   };
 
   const deleteMovie = async (id) => {
-    if (!id) {
-      alert("Invalid movie ID");
-      return;
-    }
-    if (!window.confirm("Are you sure you want to delete this movie?")) return;
+  try {
+    const response = await axios.delete(`${API_BASE}/delete/${id}`);
+    console.log(response.data); // Optional: success message
+    setMovies(movies.filter((m) => m.id !== id)); // Update UI
+  } catch (err) {
+    console.error(err);
+    alert(
+      "Failed to delete movie: " + 
+      (err.response?.data || err.message)
+    );
+  }
+};
 
-    try {
-      await axios.delete(`${API_BASE}/delete/${id}`);
-      setMovies(movies.filter((m) => m.id !== id)); // Update UI
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete movie: " + (err.response?.data?.message || err.message));
-    }
-  };
 
   return (
     <div className="container">
