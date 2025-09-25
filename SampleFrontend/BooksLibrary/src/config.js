@@ -1,4 +1,4 @@
-const config = { url: "http://localhost:8081/api/movies" };
+const config = { url: "http://localhost:2030/movieslibrary/api/movies" };
 
 
 export default config;

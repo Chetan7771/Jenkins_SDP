@@ -12,7 +12,8 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:2030", "http://localhost:5173","http://localhost:8081") // add your React port
+                        .allowedOrigins("http://localhost:5173", "http://localhost:3000")
+
                         .allowedMethods("GET", "POST", "PUT", "DELETE");
             }
         };
