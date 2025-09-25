@@ -30,9 +30,6 @@ public class MovieService {
     }
 
     public void deleteById(Long id) {
-        if (!movieRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie with ID " + id + " not found");
-        }
         movieRepository.deleteById(id);
     }
 
