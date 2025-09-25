@@ -48,10 +48,15 @@ function App() {
   };
 
   const deleteMovie = async (id) => {
+    if (!id) {
+      alert("Invalid movie ID");
+      return;
+    }
     if (!window.confirm("Are you sure you want to delete this movie?")) return;
+
     try {
       await axios.delete(`${API_BASE}/delete/${id}`);
-      fetchMovies();
+      setMovies(movies.filter((m) => m.id !== id)); // Update UI
     } catch (err) {
       console.error(err);
       alert("Failed to delete movie: " + (err.response?.data?.message || err.message));
@@ -98,13 +103,13 @@ function App() {
             <p className="empty">No movies found</p>
           ) : (
             movies.map((movie) => (
-              <div key={movie.id || movie._id} className="movie-card">
+              <div key={movie.id} className="movie-card">
                 <h3>{movie.title}</h3>
                 <p>🎭 {movie.director}</p>
                 <p>📅 {movie.year}</p>
                 <button
                   className="delete-btn"
-                  onClick={() => deleteMovie(movie.id || movie._id)}
+                  onClick={() => deleteMovie(movie.id)}
                 >
                   🗑️ Delete
                 </button>
